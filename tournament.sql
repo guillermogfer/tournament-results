@@ -56,3 +56,22 @@ CREATE VIEW player_standings AS
     total_matches
   WHERE (total_wins.name = total_matches.name)
   ORDER BY total_wins.wins DESC;
+
+--
+-- Name: player_standings_odd; Type: VIEW;
+--
+
+CREATE VIEW player_standings_odd AS
+ SELECT *
+   FROM (SELECT row_number() over (ORDER BY wins DESC) AS position, * FROM player_standings) AS subq
+ WHERE mod(position,2)=1;
+
+--
+-- Name: player_standings_even; Type: VIEW;
+--
+
+CREATE VIEW player_standings_even AS
+ SELECT *
+   FROM (SELECT row_number() over (ORDER BY wins DESC) AS position, * FROM player_standings) AS subq
+ WHERE mod(position,2)=0;
+

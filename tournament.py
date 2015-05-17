@@ -38,7 +38,6 @@ def countPlayers():
     query = "SELECT count(*) FROM players"
     db_cursor.execute(query)
     ret = db_cursor.fetchone()
-    #db.commit()
     db.close()
 
     return ret[0]
@@ -76,10 +75,9 @@ def playerStandings():
     """
     db = connect()
     db_cursor = db.cursor()
-    query = "SELECT tw.id, tw.name, tw.wins, tm.matches FROM total_wins tw, total_matches tm WHERE tw.name=tm.name"
+    query = "SELECT * FROM player_standings"
     db_cursor.execute(query)
     ret = db_cursor.fetchall()
-    #db.commit()
     db.close()
 
     return ret
@@ -117,28 +115,14 @@ def swissPairings():
     """
     db = connect()
     db_cursor = db.cursor()
-    query = "SELECT * FROM player_standings"
+    # Retrieve numbered (by number of wins) odd and even rows from player standings, and join them consecutively to get a next match players
+    query = """SELECT odd.id, odd.name, even.id, even.name
+                        FROM player_standings_odd odd, player_standings_even even
+                     WHERE odd.position+1=even.position"""
     db_cursor.execute(query)
     players = db_cursor.fetchall()
 
-    pairings = []
-    player_added = 0
-    current_tuple = ()
-
-    for player in players:
-        # If no player was added, add the player and increment the count variable
-        if player_added < 1:
-            current_tuple = (player[0], player[1])
-            player_added += 1
-        # If it was a previously player added, add the player to a tuple and append it to the pairings list. Then reset the count variable
-        else:
-            current_tuple += (player[0], player[1])
-            pairings.append(current_tuple)
-            player_added = 0
-
-    #db.commit()
     db.close()
 
-    return pairings
-
+    return players
 
